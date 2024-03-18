@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 
-export const Bubble = styled.div<{ $perspective: "user" | "bot" }>`
+export const ChatBubble = styled.div<{ $perspective: "user" | "bot" }>`
   ${(props) =>
     props.$perspective === "user"
       ? css`
