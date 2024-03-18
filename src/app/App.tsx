@@ -4,7 +4,7 @@ import { usePrepareHook } from "./helpers";
 import type { AppProps } from "../interfaces";
 
 function App({ botId }: AppProps) {
-  const { clientId, messages, onInput, onKeydown, sendMessage } =
+  const { input, clientId, messages, onInput, onKeydown, sendMessage } =
     usePrepareHook(botId);
 
   return (
@@ -29,6 +29,7 @@ function App({ botId }: AppProps) {
         </div>
         <div className="chatbot-field">
           <input
+            value={input}
             className="input"
             onChange={onInput}
             onKeyDown={onKeydown}

@@ -13,12 +13,12 @@ export interface SendMessageDto {
 }
 
 export interface Message {
-  id: string;
+  id?: string;
   value: string;
   sender: string;
   receiver: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ClientToServerEvents {

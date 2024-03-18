@@ -16,11 +16,11 @@ export const usePrepareHook = (botId: string) => {
   const [step, setStep] = useState<Step>("0-0");
   const [messages, setMessages] = useState<Message[]>([]);
 
-  useEffect(() => {
-    function onMessageEvent(message: Message) {
-      setMessages((msgs) => [...msgs, message]);
-    }
+  function addMessage(message: Message) {
+    setMessages((msgs) => [...msgs, message]);
+  }
 
+  useEffect(() => {
     // Server will set step
     function onStepEvent(step: Step) {
       setStep(step);
@@ -36,20 +36,20 @@ export const usePrepareHook = (botId: string) => {
 
     socket.on("step", onStepEvent);
     socket.on("error", onErrorEvent);
-    socket.on("message", onMessageEvent);
+    socket.on("message", addMessage);
     socket.on("requireAnswer", onRequireAnswerEvent);
 
     return () => {
       socket.off("step", onStepEvent);
       socket.off("error", onStepEvent);
-      socket.off("message", onMessageEvent);
+      socket.off("message", addMessage);
       socket.off("requireAnswer", onRequireAnswerEvent);
     };
   }, [clientId]);
 
   // TODO: 1. Change answer prop based on step
   const sendMessage = () => {
-    socket.emit("message", {
+    const message = {
       botId,
       answer,
       clientId,
@@ -57,7 +57,13 @@ export const usePrepareHook = (botId: string) => {
       receiver: botId,
       sender: clientId,
       currentStep: step,
-    });
+    };
+
+    setInput("");
+
+    addMessage(message);
+
+    socket.emit("message", message);
   };
 
   const onInput: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -71,6 +77,7 @@ export const usePrepareHook = (botId: string) => {
   };
 
   return {
+    input,
     clientId,
     messages,
     onInput,
