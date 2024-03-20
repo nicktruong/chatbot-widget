@@ -8,7 +8,7 @@ import "./index.css";
 
 const root = ReactDOM.createRoot(document.body);
 
-export default function Chatbot({ botId }: AppProps) {
+export default function initChatbot({ botId }: AppProps) {
   root.render(
     <React.StrictMode>
       <App botId={botId} />
@@ -22,4 +22,4 @@ declare global {
   }
 }
 
-window.Chatbot = Chatbot;
+window.Chatbot = initChatbot;
