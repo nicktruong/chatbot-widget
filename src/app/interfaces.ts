@@ -23,6 +23,7 @@ export interface Message {
 
 export interface ClientToServerEvents {
   message: (payload: SendMessageDto) => void;
+  "start-message": (payload: SendMessageDto) => void;
 }
 
 export type SocketServer = Socket<any, ClientToServerEvents>;

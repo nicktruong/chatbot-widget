@@ -1,4 +1,5 @@
 import {
+  useRef,
   useState,
   useEffect,
   ChangeEventHandler,
@@ -11,10 +12,43 @@ import type { Message, Step } from "./interfaces";
 
 export const usePrepareHook = (botId: string) => {
   const clientId = useClientId();
+  const atBottomRef = useRef<boolean>(true);
+  const chatContentRef = useRef<HTMLDivElement | null>(null);
+  const lastMessageRef = useRef<HTMLDivElement | null>(null);
+  const scrollFnc = useRef<null | (() => void)>(null);
+
   const [input, setInput] = useState("");
   const [answer, setAnswer] = useState(false);
   const [step, setStep] = useState<Step>("0-0");
+  const [expand, setExpand] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [firstVisit, setFirstVisit] = useState<boolean>(false);
+
+  function scrollToBottomMessages() {
+    const top = lastMessageRef.current?.offsetTop ?? 0;
+
+    chatContentRef.current?.scrollTo({ top });
+  }
+
+  function attachChatContentRef(element: HTMLDivElement | null) {
+    if (!element) return;
+    chatContentRef.current = element;
+    scrollFnc.current = () => {
+      const scrollableHeight = element.scrollHeight - element.clientHeight;
+      if (Math.abs(element.scrollTop - scrollableHeight) <= 1)
+        atBottomRef.current = true;
+      else atBottomRef.current = false;
+    };
+    element.addEventListener("scroll", scrollFnc.current);
+  }
+
+  useEffect(() => {
+    chatContentRef.current?.removeEventListener("scroll", scrollFnc.current!);
+  }, []);
+
+  useEffect(() => {
+    if (atBottomRef.current) scrollToBottomMessages();
+  }, [messages]);
 
   function addMessage(message: Message) {
     setMessages((msgs) => [...msgs, message]);
@@ -45,7 +79,23 @@ export const usePrepareHook = (botId: string) => {
       socket.off("message", addMessage);
       socket.off("requireAnswer", onRequireAnswerEvent);
     };
-  }, [clientId]);
+  }, []);
+
+  useEffect(() => {
+    if (!firstVisit || !botId || !clientId) return;
+
+    const message = {
+      botId,
+      clientId,
+      value: "",
+      answer: false,
+      receiver: botId,
+      sender: clientId,
+      currentStep: "0-0" as `${number}-${number}`,
+    };
+
+    socket.emit("start-message", message);
+  }, [firstVisit, botId, clientId]);
 
   // TODO: 1. Change answer prop based on step
   const sendMessage = () => {
@@ -76,12 +126,21 @@ export const usePrepareHook = (botId: string) => {
     }
   };
 
+  const toggleExpand = () => {
+    setFirstVisit(true);
+    setExpand((prevExpand) => !prevExpand);
+  };
+
   return {
     input,
+    expand,
     clientId,
     messages,
+    lastMessageRef,
+    chatContentRef: attachChatContentRef,
     onInput,
     onKeydown,
     sendMessage,
+    toggleExpand,
   };
 };

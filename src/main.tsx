@@ -2,13 +2,20 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import App from "./app";
-import type { AppProps } from "./interfaces";
+
+import "@fontsource-variable/inter";
 
 import "./index.css";
 
-const root = ReactDOM.createRoot(document.body);
+interface Props {
+  botId: string;
+  rootSelector: string;
+}
 
-export default function initChatbot({ botId }: AppProps) {
+// Turn to class in order to support other functionalities
+export default function initChatbot({ rootSelector, botId }: Props) {
+  const root = ReactDOM.createRoot(document.querySelector(rootSelector)!);
+
   root.render(
     <React.StrictMode>
       <App botId={botId} />
@@ -23,3 +30,8 @@ declare global {
 }
 
 window.Chatbot = initChatbot;
+
+initChatbot({
+  rootSelector: "body",
+  botId: "9db57911-7301-4997-910f-640700858956",
+});

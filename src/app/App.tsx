@@ -1,47 +1,97 @@
-import { ChatBubble } from "./components";
+import { MessageCircle, SendHorizontal, SquareMinus } from "lucide-react";
+
+import {
+  Input,
+  ChatBody,
+  ChatField,
+  ChatBubble,
+  ChatHeader,
+  ChatContent,
+  ChatbotName,
+  ChatContainer,
+  ChatbotAvatar,
+  HeaderContent,
+  ExpandChatButton,
+  ChatBubbleWrapper,
+  MinimizeChatButton,
+} from "./components";
 import { usePrepareHook } from "./helpers";
 
+import { robotSrc } from "../assets";
 import type { AppProps } from "../interfaces";
 
 function App({ botId }: AppProps) {
-  const { input, clientId, messages, onInput, onKeydown, sendMessage } =
-    usePrepareHook(botId);
+  const {
+    input,
+    expand,
+    clientId,
+    messages,
+    lastMessageRef,
+    chatContentRef,
+    onInput,
+    onKeydown,
+    sendMessage,
+    toggleExpand,
+  } = usePrepareHook(botId);
 
-  return (
-    <div className="chatbot-container">
-      <div className="chatbot-header">
-        <div className="header-content">
-          <i className="fa-solid fa-ellipsis-vertical more-icon"></i>
-          <i className="fa-solid fa-angle-down angle-down-icon"></i>
-        </div>
-      </div>
-      <div className="chatbot-body">
-        <div className="chatbot-content">
-          {messages.map(({ id, sender, value }) => (
-            <ChatBubble
-              key={id}
-              className="bubble"
-              $perspective={sender === clientId ? "user" : "bot"}
-            >
-              {value}
-            </ChatBubble>
-          ))}
-        </div>
-        <div className="chatbot-field">
-          <input
+  return expand ? (
+    <ChatContainer>
+      <ChatHeader>
+        <HeaderContent>
+          <ChatbotAvatar>
+            <img className="chatbot-avatar-img" src={robotSrc} alt="Chatbot" />
+          </ChatbotAvatar>
+          <ChatbotName>
+            <span className="chat-with">Chat with</span>
+            <span className="chatbot-name">GO Chatbot</span>
+          </ChatbotName>
+          <MinimizeChatButton onClick={toggleExpand}>
+            <SquareMinus className="angle-down-icon" />
+          </MinimizeChatButton>
+        </HeaderContent>
+      </ChatHeader>
+      <ChatBody>
+        <ChatContent ref={chatContentRef}>
+          {messages.map(({ id, sender, value }, index) => {
+            const perspective = sender === clientId ? "user" : "bot";
+
+            return (
+              <ChatBubbleWrapper
+                ref={(ref) => {
+                  if (index === messages.length - 1) {
+                    lastMessageRef.current = ref;
+                  }
+                }}
+              >
+                <ChatbotAvatar $bubble $perspective={perspective}>
+                  <img
+                    alt="Chatbot"
+                    src={robotSrc}
+                    className="chatbot-avatar-img bubble-bot-avatar"
+                  />
+                </ChatbotAvatar>
+                <ChatBubble key={id} $perspective={perspective}>
+                  {value}
+                </ChatBubble>
+              </ChatBubbleWrapper>
+            );
+          })}
+        </ChatContent>
+        <ChatField>
+          <Input
             value={input}
-            className="input"
             onChange={onInput}
             onKeyDown={onKeydown}
-            placeholder="Enter your message"
+            placeholder="Write your message..."
           />
-          <i
-            onClick={sendMessage}
-            className="fa-solid fa-paper-plane send-icon"
-          ></i>
-        </div>
-      </div>
-    </div>
+          <SendHorizontal onClick={sendMessage} className="send-icon" />
+        </ChatField>
+      </ChatBody>
+    </ChatContainer>
+  ) : (
+    <ExpandChatButton onClick={toggleExpand}>
+      <MessageCircle className="chat-icon" fill="white" />
+    </ExpandChatButton>
   );
 }
 
