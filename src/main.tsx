@@ -30,13 +30,13 @@ export default function initChatbot({ rootSelector, botId }: Props) {
 
 declare global {
   interface Window {
-    Chatbot: any;
+    initChatbot: any;
   }
 }
 
-window.Chatbot = initChatbot;
+window.initChatbot = initChatbot;
 
-initChatbot({
-  rootSelector: "body",
-  botId: "9db57911-7301-4997-910f-640700858956",
-});
+// initChatbot({
+//   rootSelector: "body",
+//   botId: "9db57911-7301-4997-910f-640700858956",
+// });
