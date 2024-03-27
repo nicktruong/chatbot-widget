@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import App from "./app";
+import { scheduleMessage } from "./utils";
 
 import "@fontsource-variable/inter";
 
@@ -12,7 +13,7 @@ interface Props {
   rootSelector: string;
 }
 
-// Turn to class in order to support other functionalities
+// Turn to class in order to support other functionalities such as send scheduled messages
 export default function initChatbot({ rootSelector, botId }: Props) {
   const root = ReactDOM.createRoot(document.querySelector(rootSelector)!);
 
@@ -21,6 +22,10 @@ export default function initChatbot({ rootSelector, botId }: Props) {
       <App botId={botId} />
     </React.StrictMode>
   );
+
+  return {
+    scheduleMessage,
+  };
 }
 
 declare global {
